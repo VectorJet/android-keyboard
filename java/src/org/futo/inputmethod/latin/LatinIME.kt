@@ -247,36 +247,19 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
     fun updateNavigationBarVisibility(visible: Boolean? = null) {
         if(visible != null) isNavigationBarVisible = visible
 
-        if(SupportsNavbarExtension) {
-            val isFloating = size.value is FloatingKeyboardSize
+        val isFloating = size.value is FloatingKeyboardSize
+        val color = (colorScheme.navigationBarColor ?: colorScheme.keyboardSurface)
 
-            val color = (colorScheme.navigationBarColor ?: colorScheme.keyboardSurface)
-
-            val colorToUse = when {
-                isFloating -> Color.BLACK
-                else -> (colorScheme.navigationBarColorForTransparency ?: color).toArgb()
-            } and 0x00FFFFFF
-
-            window.window?.let { window ->
-                if(UseTransparentNavbar) {
-                    applyWindowColors(window, colorToUse, statusBar = false)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        window.setNavigationBarContrastEnforced(isFloating)
-                    }
-
-                    WindowCompat.setDecorFitsSystemWindows(window, false)
-                } else {
-                    applyWindowColors(window, color.toArgb(), statusBar = false)
+        window.window?.let { window ->
+            if(!isNavigationBarVisible || isFloating) {
+                applyWindowColors(window, Color.TRANSPARENT, statusBar = false)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    window.isNavigationBarContrastEnforced = true
                 }
-            }
-        } else {
-            val color = colorScheme.navigationBarColor?.toArgb() ?: drawableProvider?.keyboardColor
-
-            window.window?.let { window ->
-                if(color == null || !isNavigationBarVisible) {
-                    applyWindowColors(window, Color.TRANSPARENT, statusBar = false)
-                } else {
-                    applyWindowColors(window, color, statusBar = false)
+            } else {
+                applyWindowColors(window, color.toArgb(), statusBar = false)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    window.isNavigationBarContrastEnforced = false
                 }
             }
         }

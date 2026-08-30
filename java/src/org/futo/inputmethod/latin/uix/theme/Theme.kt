@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import org.futo.inputmethod.latin.uix.KeyboardColorScheme
+import android.view.WindowManager
 import org.futo.inputmethod.latin.uix.LocalKeyboardScheme
 import org.futo.inputmethod.latin.uix.THEME_KEY
 import org.futo.inputmethod.latin.uix.actions.compatEmojiTypeface
@@ -25,6 +26,8 @@ import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
 import kotlin.math.sqrt
 
 fun applyWindowColors(window: Window, @ColorInt color: Int, statusBar: Boolean) {
+    window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
+    window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
     if(statusBar) {
         window.statusBarColor = color
     }
