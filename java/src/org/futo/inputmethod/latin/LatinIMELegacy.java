@@ -450,7 +450,7 @@ public class LatinIMELegacy implements KeyboardActionListener,
     }
 
     public void onWindowShown() {
-        setNavigationBarVisibility(mInputMethodService.isInputViewShown());
+        setNavigationBarVisibility(true);
     }
 
     public void onWindowHidden() {

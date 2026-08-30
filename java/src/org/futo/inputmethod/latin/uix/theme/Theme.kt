@@ -25,6 +25,8 @@ import org.futo.inputmethod.latin.uix.findActivity
 import org.futo.inputmethod.latin.uix.settings.useDataStoreValue
 import kotlin.math.sqrt
 
+import androidx.core.view.WindowCompat
+
 fun applyWindowColors(window: Window, @ColorInt color: Int, statusBar: Boolean) {
     window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS)
     window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
@@ -33,21 +35,21 @@ fun applyWindowColors(window: Window, @ColorInt color: Int, statusBar: Boolean) 
     }
     window.navigationBarColor = color
 
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val view = window.decorView
-        val uiFlags = view.systemUiVisibility
+    val luminance = sqrt(
+        0.299 * android.graphics.Color.red(color) / 255.0
+                + 0.587 * android.graphics.Color.green(color) / 255.0
+                + 0.114 * android.graphics.Color.blue(color) / 255.0
+    )
+    val isLight = luminance > 0.5 && color != android.graphics.Color.TRANSPARENT
 
-        val luminance = sqrt(
-            0.299 * android.graphics.Color.red(color) / 255.0
-                    + 0.587 * android.graphics.Color.green(color) / 255.0
-                    + 0.114 * android.graphics.Color.blue(color) / 255.0
-        )
+    val insetsController = WindowCompat.getInsetsController(window, window.decorView)
+    insetsController.isAppearanceLightNavigationBars = isLight
+    if (statusBar) {
+        insetsController.isAppearanceLightStatusBars = isLight
+    }
 
-        if (luminance > 0.5 && color != android.graphics.Color.TRANSPARENT) {
-            view.systemUiVisibility = uiFlags or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
-        } else {
-            view.systemUiVisibility = uiFlags and (View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR.inv())
-        }
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+        window.isNavigationBarContrastEnforced = false
     }
 }
 

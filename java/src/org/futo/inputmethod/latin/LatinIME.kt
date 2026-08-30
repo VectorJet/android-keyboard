@@ -244,7 +244,7 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
         settingsRefreshRequired = false
     }
 
-    private var isNavigationBarVisible = false
+    private var isNavigationBarVisible = true
     fun updateNavigationBarVisibility(visible: Boolean? = null) {
         if(visible != null) isNavigationBarVisible = visible
 
@@ -614,6 +614,7 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
 
     override fun onStartInputView(info: EditorInfo?, restarting: Boolean) {
         super.onStartInputView(info, restarting)
+        updateNavigationBarVisibility(true)
         onSizeMaybeUpdated()
         imeManager.onStartInput()
         latinIMELegacy.onStartInputView(info, restarting)
@@ -642,12 +643,14 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
     override fun onWindowShown() {
         super.onWindowShown()
         latinIMELegacy.onWindowShown()
+        updateNavigationBarVisibility(true)
         updateColorsIfDynamicChanged()
     }
 
     override fun onWindowHidden() {
         super.onWindowHidden()
         latinIMELegacy.onWindowHidden()
+        updateNavigationBarVisibility(false)
         uixManager.onInputFinishing()
     }
 
