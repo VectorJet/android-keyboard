@@ -35,6 +35,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.absolutePadding
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -47,6 +48,8 @@ import androidx.compose.foundation.layout.requiredWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
@@ -174,12 +177,26 @@ val LocalNavController = compositionLocalOf<NavHostController?> {
 private val UixLocaleFollowsSubtypeLocale = true
 
 @Composable
-fun navBarHeight(): Dp = with(LocalDensity.current) {
-    if(SupportsNavbarExtension) {
-        WindowInsets.systemBars.getBottom(this).toDp()
-    } else {
-        0.dp
+fun navBarHeight(): Dp {
+    val density = LocalDensity.current
+    if (!SupportsNavbarExtension) return 0.dp
+
+    val composeNavBottom = WindowInsets.navigationBars.getBottom(density)
+    val composeSysBottom = WindowInsets.systemBars.getBottom(density)
+    val composeBottom = maxOf(composeNavBottom, composeSysBottom)
+    if (composeBottom > 0) {
+        return with(density) { composeBottom.toDp() }
     }
+
+    val view = LocalView.current
+    val insets = ViewCompat.getRootWindowInsets(view)
+    if (insets != null) {
+        val navInsets = insets.getInsets(WindowInsetsCompat.Type.navigationBars() or WindowInsetsCompat.Type.systemBars())
+        if (navInsets.bottom > 0) {
+            return with(density) { navInsets.bottom.toDp() }
+        }
+    }
+    return 0.dp
 }
 
 
