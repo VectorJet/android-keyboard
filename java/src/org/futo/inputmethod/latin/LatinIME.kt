@@ -252,10 +252,6 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
         val color = (colorScheme.navigationBarColor ?: colorScheme.keyboardSurface)
 
         window.window?.let { window ->
-            if (SupportsNavbarExtension) {
-                WindowCompat.setDecorFitsSystemWindows(window, isFloating)
-            }
-
             if(!isNavigationBarVisible || isFloating) {
                 applyWindowColors(window, Color.TRANSPARENT, statusBar = false)
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
@@ -524,20 +520,11 @@ class LatinIME : InputMethodServiceCompose(), LatinIMELegacy.SuggestionStripCont
 
     override fun onConfigureWindow(win: Window, isFullscreen: Boolean, isCandidatesOnly: Boolean) {
         super.onConfigureWindow(win, isFullscreen, isCandidatesOnly)
-        if (SupportsNavbarExtension) {
-            WindowCompat.setDecorFitsSystemWindows(win, size.value is FloatingKeyboardSize)
-        }
     }
 
     private var legacyInputView: MutableState<View?> = mutableStateOf(null)
     override fun onCreateInputView(): View {
         val composeView = super.onCreateInputView()
-
-        window.window?.let { win ->
-            if (SupportsNavbarExtension) {
-                WindowCompat.setDecorFitsSystemWindows(win, size.value is FloatingKeyboardSize)
-            }
-        }
 
         legacyInputView.value = latinIMELegacy.onCreateInputView()
         latinIMELegacy.setComposeInputView(composeView)

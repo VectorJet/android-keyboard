@@ -178,9 +178,21 @@ private val UixLocaleFollowsSubtypeLocale = true
 
 @Composable
 fun navBarHeight(): Dp {
+    val context = LocalView.current.context
     val density = LocalDensity.current
     if (!SupportsNavbarExtension) return 0.dp
 
+    // Primary: read from Android system resource - this is always correct regardless of
+    // how insets are dispatched to the IME window (Gboard uses this same approach)
+    val resourceId = context.resources.getIdentifier("navigation_bar_height", "dimen", "android")
+    if (resourceId > 0) {
+        val navHeightPx = context.resources.getDimensionPixelSize(resourceId)
+        if (navHeightPx > 0) {
+            return with(density) { navHeightPx.toDp() }
+        }
+    }
+
+    // Fallback 1: Compose window insets
     val composeNavBottom = WindowInsets.navigationBars.getBottom(density)
     val composeSysBottom = WindowInsets.systemBars.getBottom(density)
     val composeBottom = maxOf(composeNavBottom, composeSysBottom)
@@ -188,6 +200,7 @@ fun navBarHeight(): Dp {
         return with(density) { composeBottom.toDp() }
     }
 
+    // Fallback 2: ViewCompat root window insets
     val view = LocalView.current
     val insets = ViewCompat.getRootWindowInsets(view)
     if (insets != null) {
